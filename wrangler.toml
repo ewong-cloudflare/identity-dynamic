@@ -1,0 +1,53 @@
+name = "identity-dynamic"
+workers_dev = false
+compatibility_date = "2024-11-25"
+main = "src/main.js"
+
+#------------------------------------------------------------------
+# Insert your account id
+#------------------------------------------------------------------
+account_id = ""
+
+#------------------------------------------------------------------
+# Add your worker domain, for example: identity.pleasant-sensor.com
+#------------------------------------------------------------------
+routes = [
+	{ pattern = "", custom_domain = true }	
+]
+
+#------------------------------------------------------------------
+# We will fill up the kv's id in later step
+#------------------------------------------------------------------
+#[[kv_namespaces]] 
+#binding = "IDENTITY_DYNAMIC_THEME_STORE"
+#id = ""
+
+[vars]
+#------------------------------------------------------------------
+# This should be the route pattern domain /debug , for example: https://identity.pleasant-sensor.com/debug
+#------------------------------------------------------------------
+CORS_ORIGIN = "identity-dynamic.acmecorp.work" 
+
+#------------------------------------------------------------------
+# Insert your account id (use the same value for both vars)
+#------------------------------------------------------------------
+ACCOUNT_ID = "4b4dd89ae17661da1cb0ae3b6d35ebe3"
+ORGANIZATION_ID = "4b4dd89ae17661da1cb0ae3b6d35ebe3"
+
+#------------------------------------------------------------------
+# Insert your team domain without cloudflareaccess.com. for example: zt-pleasant-sensor
+#------------------------------------------------------------------
+ORGANIZATION_NAME = "AcmeCorp"
+
+
+DEBUG = "true"
+TARGET_GROUP = "NA" # Define the "special group" that you want to use for notification
+
+[site]
+bucket = "./build"
+
+[observability.logs]
+enabled = true
+
+[build]
+command = "npm run build"
