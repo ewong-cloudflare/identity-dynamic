@@ -209,8 +209,10 @@ async function handleAssetRetrieval(request, env, key) {
 // handle the /api/debug endpoint
 async function handleDebugPage(request) {
   try {
-    // eslint-disable-next-line
-    if (DEBUG === "true") {
+    // Check if debugging is enabled
+    const isDebugEnabled = String(DEBUG).toLowerCase() === "true";
+
+    if (isDebugEnabled) {
       const identityResponse = await fetchIdentity(request);
 
       if (!identityResponse.ok) {
