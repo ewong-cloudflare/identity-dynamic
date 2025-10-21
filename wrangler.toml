@@ -18,7 +18,7 @@ routes = [
 #------------------------------------------------------------------
 # We will fill up the kv's id in later step
 #------------------------------------------------------------------
-#[[kv_namespaces]] 
+[[kv_namespaces]] 
 binding = "IDENTITY_DYNAMIC_THEME_STORE"
 id = "fc983f60deec496b87f5809f3e3cca41"
 
