@@ -26,7 +26,7 @@ id = "fc983f60deec496b87f5809f3e3cca41"
 #------------------------------------------------------------------
 # This should be the route pattern domain /debug , for example: https://identity.pleasant-sensor.com/debug
 #------------------------------------------------------------------
-CORS_ORIGIN = "identity-dynamic.acmecorp.work" 
+CORS_ORIGIN = "identity-dynamic.acmecorp.work/debug"  # This should be the route pattern domain /debug (https://example.com/debug)
 
 #------------------------------------------------------------------
 # Insert your account id (use the same value for both vars)
