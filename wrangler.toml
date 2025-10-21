@@ -37,7 +37,7 @@ ORGANIZATION_ID = "4b4dd89ae17661da1cb0ae3b6d35ebe3"
 #------------------------------------------------------------------
 # Insert your team domain without cloudflareaccess.com. for example: zt-pleasant-sensor
 #------------------------------------------------------------------
-ORGANIZATION_NAME = "AcmeCorp"
+ORGANIZATION_NAME = "realacmecorp"
 
 
 DEBUG = "true"
