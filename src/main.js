@@ -209,10 +209,8 @@ async function handleAssetRetrieval(request, env, key) {
 // handle the /api/debug endpoint
 async function handleDebugPage(request) {
   try {
-    // Check if debugging is enabled
-    const isDebugEnabled = String(DEBUG).toLowerCase() === "true";
-
-    if (isDebugEnabled) {
+    // eslint-disable-next-line
+    if (DEBUG === "true") {
       const identityResponse = await fetchIdentity(request);
 
       if (!identityResponse.ok) {
@@ -246,6 +244,46 @@ async function handleDebugPage(request) {
     );
   }
 }
+
+// async function handleDebugPage(request) {
+//   try {
+//     // Check if debugging is enabled
+//     const isDebugEnabled = String(DEBUG).toLowerCase() === "true";
+
+//     if (isDebugEnabled) {
+//       const identityResponse = await fetchIdentity(request);
+
+//       if (!identityResponse.ok) {
+//         return new Response(
+//           JSON.stringify({ error: "Failed to fetch identity." }),
+//           {
+//             status: identityResponse.status,
+//             headers: { "Content-Type": "application/json" },
+//           }
+//         );
+//       }
+
+//       const identityData = await identityResponse.json();
+
+//       return new Response(JSON.stringify(identityData), {
+//         headers: { "Content-Type": "application/json" },
+//       });
+//     } else {
+//       return new Response(JSON.stringify({ error: "Debugging is disabled." }), {
+//         status: 403,
+//         headers: { "Content-Type": "application/json" },
+//       });
+//     }
+//   } catch (error) {
+//     return new Response(
+//       JSON.stringify({ error: `Internal Server Error: ${error.message}` }),
+//       {
+//         status: 500,
+//         headers: { "Content-Type": "application/json" },
+//       }
+//     );
+//   }
+// }
 
 // handle static pages
 async function handleEvent(event) {
