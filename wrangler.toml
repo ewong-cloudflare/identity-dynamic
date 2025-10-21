@@ -6,13 +6,13 @@ main = "src/main.js"
 #------------------------------------------------------------------
 # Insert your account id
 #------------------------------------------------------------------
-account_id = ""
+account_id = "4b4dd89ae17661da1cb0ae3b6d35ebe3"
 
 #------------------------------------------------------------------
 # Add your worker domain, for example: identity.pleasant-sensor.com
 #------------------------------------------------------------------
 routes = [
-	{ pattern = "", custom_domain = true }	
+	{ pattern = "identity-dynamic.acmecorp.work", custom_domain = true }	
 ]
 
 #------------------------------------------------------------------
@@ -51,3 +51,5 @@ enabled = true
 
 [build]
 command = "npm run build"
+
+
