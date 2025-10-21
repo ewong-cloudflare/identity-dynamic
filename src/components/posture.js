@@ -9,6 +9,7 @@ const Posture = ({ onLoaded }) => {
   const [osStatus, setOsStatus] = useState({ message: "", passed: false });
   const [warpEnabled, setWarpEnabled] = useState(null);
   const [tooltipStyles, setTooltipStyles] = useState({});
+  // eslint-disable-next-line 
   const [errorMessage, setErrorMessage] = useState("");
 
   const tooltipTriggerRef = useRef(null);
