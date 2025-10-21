@@ -19,6 +19,7 @@ const WarpInfo = ({ onLoaded }) => {
     const fetchData = async () => {
       try {
         console.log("WarpInfo: Starting data fetch...");
+        console.log("testing123");
 
         // Fetch WARP status
         const traceResponse = await fetch("https://www.cloudflare.com/cdn-cgi/trace");
