@@ -41,7 +41,7 @@ const WarpInfo = ({ onLoaded }) => {
         // Calculate is_in_org
         const isInOrg = userData.identity.gateway_account_id === envData.ORGANIZATION_ID;
 
-        console.log("ORGANIZATION_ID1 ", envVars.ORGANIZATION_ID);
+        console.log("ORGANIZATION_ID1 ", envData.ORGANIZATION_ID);
         console.log("userDetails ", userData.identity.gateway_account_id);
         console.log("isInOrg ", isInOrg);
 
