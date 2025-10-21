@@ -327,11 +327,13 @@ async function handleUserDetails(request) {
       return identityResponse;
     }
 
+
     const identityData = await identityResponse.json();
     const deviceDetailsResponse = await fetchDeviceDetails(
-      identityData.account_id,
+      identityData.gateway_account_id,
       device_id
     );
+        console.log("main gateway_account_id, ", identityData.gateway_account_id);
 
     let deviceDetailsData = {};
     if (deviceDetailsResponse.ok) {
@@ -345,7 +347,7 @@ async function handleUserDetails(request) {
     }
 
     const devicePostureResponse = await fetchDevicePosture(
-      identityData.account_id,
+      identityData.gateway_account_id,
       device_id
     );
 
@@ -451,8 +453,8 @@ async function fetchIdentity(request, retries = 1) {
 }
 
 // api -> device information
-async function fetchDeviceDetails(account_id, device_id) {
-  const url = `https://api.cloudflare.com/client/v4/accounts/${account_id}/devices/${device_id}`;
+async function fetchDeviceDetails(gateway_account_id, device_id) {
+  const url = `https://api.cloudflare.com/client/v4/accounts/${gateway_account_id}/devices/${device_id}`;
   console.log(`Attempting to fetch device details from URL: ${url}`); // Log the request URL
 
   try {
@@ -501,8 +503,8 @@ async function fetchDeviceDetails(account_id, device_id) {
 }
 
 // api -> posture information
-async function fetchDevicePosture(account_id, device_id) {
-  const url = `https://api.cloudflare.com/client/v4/accounts/${account_id}/devices/${device_id}/posture/check?enrich=false`;
+async function fetchDevicePosture(gateway_account_id, device_id) {
+  const url = `https://api.cloudflare.com/client/v4/accounts/${gateway_account_id}/devices/${device_id}/posture/check?enrich=false`;
 
   try {
     console.log(`Fetching device posture for device_id ${device_id}`);
