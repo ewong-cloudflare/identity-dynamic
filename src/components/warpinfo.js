@@ -5,7 +5,7 @@ const WarpInfo = ({ onLoaded }) => {
     user_name: "",
     user_email: "",
     is_WARP_enabled: false,
-    gateway_account_id: "",
+    account_id: "",
     is_in_org: null,
   });
   const [envVars, setEnvVars] = useState({
@@ -39,14 +39,14 @@ const WarpInfo = ({ onLoaded }) => {
         const userData = await userResponse.json();
 
         // Calculate is_in_org
-        const isInOrg = userData.identity.gateway_account_id === envData.ORGANIZATION_ID;
+        const isInOrg = userData.identity.account_id === envData.ORGANIZATION_ID;
 
         // Update userData state with fetched data and calculated `is_in_org`
         setUserData({
           user_name: userData.identity.name,
           user_email: userData.identity.email,
           is_WARP_enabled: userData.identity.is_warp,
-          gateway_account_id: userData.identity.gateway_account_id,
+          account_id: userData.identity.account_id,
           is_in_org: isInOrg,
         });
 
