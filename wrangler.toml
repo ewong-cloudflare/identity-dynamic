@@ -40,7 +40,7 @@ ORGANIZATION_ID = "4b4dd89ae17661da1cb0ae3b6d35ebe3"
 ORGANIZATION_NAME = "AcmeCorp"
 
 
-DEBUG = "true"
+DEBUG = "false"
 TARGET_GROUP = "NA" # Define the "special group" that you want to use for notification
 
 [site]
