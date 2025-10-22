@@ -472,20 +472,36 @@ async function handleUserDetails(request) {
 }
 
 // This is to assist handleUserDetails - getting the deviceid directly from the cfauth cookie
+// function getDeviceIdFromToken(jwt) {
+//   // eslint-disable-next-line
+//   const [header, payload, signature] = jwt.split(".");
+//   if (payload) {
+//     try {
+//       const decoded = JSON.parse(
+//         atob(payload.replace(/_/g, "/").replace(/-/g, "+"))
+//       );
+//       return decoded.device_id || null; // Return device_id or null if not found
+//     } catch (error) {
+//       console.error("Error decoding JWT for device_id extraction:", error);
+//     }
+//   }
+//   return null;
+// }
+
+// Improved JWT parsing function with safer error handling
 function getDeviceIdFromToken(jwt) {
-  // eslint-disable-next-line
-  const [header, payload, signature] = jwt.split(".");
-  if (payload) {
-    try {
-      const decoded = JSON.parse(
-        atob(payload.replace(/_/g, "/").replace(/-/g, "+"))
-      );
-      return decoded.device_id || null; // Return device_id or null if not found
-    } catch (error) {
-      console.error("Error decoding JWT for device_id extraction:", error);
-    }
+  try {
+    const payload = jwt.split(".")[1];
+    if (!payload) throw new Error("Invalid JWT structure");
+
+    const decoded = JSON.parse(
+      atob(payload.replace(/_/g, "/").replace(/-/g, "+"))
+    );
+    return decoded.device_id || null;
+  } catch (error) {
+    console.error("Error decoding JWT for device_id extraction:", error);
+    return null;
   }
-  return null;
 }
 
 // get-identity
