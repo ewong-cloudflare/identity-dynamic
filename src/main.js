@@ -1,10 +1,10 @@
 import { getAssetFromKV } from "@cloudflare/kv-asset-handler";
 
-/* eslint-disable */
-
+// eslint-disable-next-line
 addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
+  console.log("path name :", url.pathname )
   if (url.pathname === "/api/userdetails") {
     event.respondWith(handleUserDetails(event.request));
   } else if (url.pathname === "/api/history") {
@@ -24,6 +24,7 @@ addEventListener("fetch", (event) => {
 
 // Expose worker env var via API endpoint (needed for frontend shenanigans)
 // This also has the theme since its stored in kv upon configuration
+// eslint-disable-next-line
 const corsOrigin = CORS_ORIGIN;
 const corsHeaders = {
   "Access-Control-Allow-Origin": corsOrigin,
@@ -72,6 +73,7 @@ async function handleEnvRequest(request, env) {
         ORGANIZATION_NAME: ORGANIZATION_NAME,
         TARGET_GROUP: TARGET_GROUP,
         DEBUG: DEBUG,
+        WORKER_DOMAIN: "identity.jjblog.xyz",
         theme: theme
           ? JSON.parse(theme)
           : {
@@ -97,8 +99,6 @@ async function handleEnvRequest(request, env) {
     });
   }
 }
-
-/* eslint-enable */
 
 async function handleUploadRequest(request, env) {
   if (request.method === "OPTIONS") {
@@ -128,7 +128,7 @@ async function handleUploadRequest(request, env) {
     console.log("Form data received:", formData);
 
     const file = formData.get("file");
-    const type = formData.get("type");
+    const type = formData.get("type"); // e.g., 'logo' or 'favicon'
 
     console.log("File:", file);
     console.log("Type:", type);
@@ -153,7 +153,7 @@ async function handleUploadRequest(request, env) {
     }
 
     // Save the file to KV
-    const key = `${type}`;
+    const key = `${type}`; // 'logo' or 'favicon'
     console.log(`Saving file to KV with key: ${key}`);
 
     await IDENTITY_DYNAMIC_THEME_STORE.put(key, file.stream(), {
@@ -206,6 +206,64 @@ async function handleAssetRetrieval(request, env, key) {
   }
 }
 
+// https://developers.cloudflare.com/cloudflare-one/policies/gateway/http-policies/#redirect
+async function handleGatewayRedirectRequest(event) {
+  try {
+    return await getAssetFromKV(event, {
+      mapRequestToAsset: (req) =>
+        new Request(`${new URL(req.url).origin}/index.html`, req),
+    });
+  } catch (error) {
+    console.error("Error serving React app for /gateway:", error);
+    return new Response("Internal Server Error", { status: 500 });
+  }
+}
+
+// handle enhanced gateway policy information - description in /gateway messaging
+async function handleGatewayRuleMetadataRequest(request) {
+  const url = new URL(request.url);
+  const ruleId = url.searchParams.get("rule_id");
+
+  if (!ruleId) {
+    return new Response(
+      JSON.stringify({ error: "Missing rule_id query parameter" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  const ruleUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/gateway/rules/${ruleId}`;
+
+  try {
+    const response = await fetch(ruleUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Error fetching rule metadata:", data);
+      return new Response(JSON.stringify(data), {
+        status: response.status,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify(data), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Unexpected error in /api/gateway:", error);
+    return new Response(
+      JSON.stringify({ error: "Internal Server Error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
+}
+
 // handle the /api/debug endpoint
 async function handleDebugPage(request) {
   try {
@@ -246,6 +304,43 @@ async function handleDebugPage(request) {
     );
   }
 }
+// async function handleDebugPage(request) {
+//   try {
+//     // eslint-disable-next-line
+//     if (DEBUG === "true") {
+//       const identityResponse = await fetchIdentity(request);
+
+//       if (!identityResponse.ok) {
+//         return new Response(
+//           JSON.stringify({ error: "Failed to fetch identity." }),
+//           {
+//             status: identityResponse.status,
+//             headers: { "Content-Type": "application/json" },
+//           }
+//         );
+//       }
+
+//       const identityData = await identityResponse.json();
+
+//       return new Response(JSON.stringify(identityData), {
+//         headers: { "Content-Type": "application/json" },
+//       });
+//     } else {
+//       return new Response(JSON.stringify({ error: "Debugging is disabled." }), {
+//         status: 403,
+//         headers: { "Content-Type": "application/json" },
+//       });
+//     }
+//   } catch (error) {
+//     return new Response(
+//       JSON.stringify({ error: `Internal Server Error: ${error.message}` }),
+//       {
+//         status: 500,
+//         headers: { "Content-Type": "application/json" },
+//       }
+//     );
+//   }
+// }
 
 // handle static pages
 async function handleEvent(event) {
@@ -284,103 +379,6 @@ async function handleEvent(event) {
     });
   }
 }
-
-//old
-// handle /api/userdetails + include user uuid for graphql
-// async function handleUserDetails(request) {
-//   // Step 1: Attempt to get device_id directly from the token
-//   const accessCookie = request.headers.get("cf-access-jwt-assertion");
-//   if (!accessCookie) {
-//     return new Response(JSON.stringify({ error: "Unauthorized" }), {
-//       status: 401,
-//     });
-//   }
-
-//   // Try to extract device_id from the token
-//   let device_id = getDeviceIdFromToken(accessCookie);
-
-//   if (!device_id) {
-//     console.warn(
-//       "Device ID not found in token, attempting to fetch from get-identity"
-//     );
-
-//     // Step 2: Fallback - fetch identity data from get-identity endpoint to retrieve device_id
-//     const identityResponse = await fetchIdentity(request);
-//     if (!identityResponse.ok) {
-//       return identityResponse;
-//     }
-
-//     const identityData = await identityResponse.json();
-//     device_id = identityData?.identity?.device_id; // Get device_id from identity data
-
-//     if (!device_id) {
-//       return new Response(
-//         JSON.stringify({ error: "Device ID not found in identity data" }),
-//         { status: 400 }
-//       );
-//     }
-//   }
-
-//   try {
-//     // Proceed with the fetched or fallback device_id
-//     const identityResponse = await fetchIdentity(request);
-//     if (!identityResponse.ok) {
-//       return identityResponse;
-//     }
-
-
-//     const identityData = await identityResponse.json();
-//     const deviceDetailsResponse = await fetchDeviceDetails(
-//       identityData.gateway_account_id,
-//       device_id
-//     );
-//         console.log("main gateway_account_id, ", identityData.gateway_account_id);
-
-//     let deviceDetailsData = {};
-//     if (deviceDetailsResponse.ok) {
-//       deviceDetailsData = await deviceDetailsResponse.json();
-//     } else if (deviceDetailsResponse.status === 404) {
-//       console.warn(
-//         `Device with ID ${device_id} not found (404). Device details unavailable.`
-//       );
-//     } else {
-//       return deviceDetailsResponse;
-//     }
-
-//     const devicePostureResponse = await fetchDevicePosture(
-//       identityData.gateway_account_id,
-//       device_id
-//     );
-
-//     let devicePostureData = {};
-//     if (devicePostureResponse.ok) {
-//       devicePostureData = await devicePostureResponse.json();
-//     } else {
-//       console.warn(
-//         `Device posture could not be retrieved for device ID ${device_id}.`
-//       );
-//     }
-
-//     const combinedData = {
-//       identity: identityData,
-//       device: deviceDetailsData,
-//       posture: devicePostureData,
-//     };
-
-//     return new Response(JSON.stringify(combinedData), {
-//       headers: { "Content-Type": "application/json" },
-//     });
-//   } catch (error) {
-//     console.error("Error in handleUserDetails:", error);
-//     return new Response(
-//       JSON.stringify({ error: `Internal Server Error: ${error.message}` }),
-//       {
-//         status: 500,
-//         headers: { "Content-Type": "application/json" },
-//       }
-//     );
-//   }
-// }
 
 // handle /api/userdetails + include user uuid for graphql
 async function handleUserDetails(request) {
@@ -471,23 +469,6 @@ async function handleUserDetails(request) {
   }
 }
 
-// This is to assist handleUserDetails - getting the deviceid directly from the cfauth cookie
-// function getDeviceIdFromToken(jwt) {
-//   // eslint-disable-next-line
-//   const [header, payload, signature] = jwt.split(".");
-//   if (payload) {
-//     try {
-//       const decoded = JSON.parse(
-//         atob(payload.replace(/_/g, "/").replace(/-/g, "+"))
-//       );
-//       return decoded.device_id || null; // Return device_id or null if not found
-//     } catch (error) {
-//       console.error("Error decoding JWT for device_id extraction:", error);
-//     }
-//   }
-//   return null;
-// }
-
 // Improved JWT parsing function with safer error handling
 function getDeviceIdFromToken(jwt) {
   try {
@@ -508,8 +489,10 @@ function getDeviceIdFromToken(jwt) {
 async function fetchIdentity(request, retries = 1) {
   const accessCookie = request.headers.get("cf-access-jwt-assertion");
   if (!accessCookie) {
+    console.error("cf-access-jwt-assertion not found. Headers:", [...request.headers.entries()]);
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
+      headers: { "Content-Type": "application/json" },
     });
   }
 
@@ -568,7 +551,6 @@ async function fetchDeviceDetails(gateway_account_id, device_id) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // eslint-disable-next-line
         Authorization: `Bearer ${BEARER_TOKEN}`,
       },
     });
@@ -585,8 +567,8 @@ async function fetchDeviceDetails(gateway_account_id, device_id) {
 
     const deviceDetails = await response.json();
     console.log(
-      `Fetched device details for device_id ${device_id}:`
-      // deviceDetails
+      `Fetched device details for device_id ${device_id}:`,
+      deviceDetails
     );
 
     return new Response(JSON.stringify(deviceDetails), {
@@ -618,7 +600,6 @@ async function fetchDevicePosture(gateway_account_id, device_id) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // eslint-disable-next-line
         Authorization: `Bearer ${BEARER_TOKEN}`,
       },
     });
@@ -633,8 +614,8 @@ async function fetchDevicePosture(gateway_account_id, device_id) {
 
     const devicePosture = await response.json();
     console.log(
-      `Fetched device posture for device_id ${device_id}:`
-      // devicePosture
+      `Fetched device posture for device_id ${device_id}:`,
+      devicePosture
     );
 
     return new Response(JSON.stringify(devicePosture), {
@@ -662,9 +643,11 @@ async function handleHistoryRequest(request) {
   try {
     // Fetch user details to get `user_uuid` - will be used to filter
     const userDetailsResponse = await handleUserDetails(request);
-    const userDetailsData = await userDetailsResponse.json();
-    const userUuid = userDetailsData.identity?.user_uuid;
+    const identityData = await userDetailsResponse.json();
+    const userUuid = identityData.identity?.user_uuid;
 
+    console.log("User UUID=", userUuid)
+    console.log("Account ID:", ACCOUNT_ID);    
     if (!userUuid) {
       return new Response(JSON.stringify({ error: "user_uuid not found" }), {
         status: 400,
@@ -680,7 +663,7 @@ async function handleHistoryRequest(request) {
             accessLoginRequestsAdaptiveGroups(
               limit: 5, 
               filter: {
-                datetime_geq: "${new Date(Date.now() - 10 * 60000).toISOString()}", 
+                datetime_geq: "${new Date(Date.now() - 2 * 60 * 60000).toISOString()}",
                 datetime_leq: "${new Date().toISOString()}", 
                 userUuid: "${userUuid}", 
                 isSuccessfulLogin: 0
@@ -764,6 +747,8 @@ async function handleHistoryRequest(request) {
       })
     );
 
+    console.log("Raw GraphQL Response:", JSON.stringify(data, null, 2));
+
     // Append the name to entry in the history endpoint
     const enhancedLoginEvents = loginEvents.map((event, index) => ({
       ...event,
@@ -783,4 +768,31 @@ async function handleHistoryRequest(request) {
       }
     );
   }
+}
+
+async function handleManifestRequest(request) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const manifest = {
+    name: "Access Helper",
+    short_name: "AccessHelper",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#ffffff",
+    icons: [
+      {
+        sizes: "512x512",
+        type: "image/png"
+      }
+    ]
+  };
+
+  return new Response(JSON.stringify(manifest), {
+    headers: {
+      "Content-Type": "application/json",
+      ...corsHeaders,
+    }
+  });
 }
