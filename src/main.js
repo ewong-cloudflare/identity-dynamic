@@ -73,7 +73,7 @@ async function handleEnvRequest(request, env) {
         ORGANIZATION_NAME: ORGANIZATION_NAME,
         TARGET_GROUP: TARGET_GROUP,
         DEBUG: DEBUG,
-        WORKER_DOMAIN: "identity.jjblog.xyz",
+        WORKER_DOMAIN: "identity-dynamic.acmecorp.work",
         theme: theme
           ? JSON.parse(theme)
           : {
