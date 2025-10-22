@@ -285,85 +285,175 @@ async function handleEvent(event) {
   }
 }
 
+//old
+// handle /api/userdetails + include user uuid for graphql
+// async function handleUserDetails(request) {
+//   // Step 1: Attempt to get device_id directly from the token
+//   const accessCookie = request.headers.get("cf-access-jwt-assertion");
+//   if (!accessCookie) {
+//     return new Response(JSON.stringify({ error: "Unauthorized" }), {
+//       status: 401,
+//     });
+//   }
+
+//   // Try to extract device_id from the token
+//   let device_id = getDeviceIdFromToken(accessCookie);
+
+//   if (!device_id) {
+//     console.warn(
+//       "Device ID not found in token, attempting to fetch from get-identity"
+//     );
+
+//     // Step 2: Fallback - fetch identity data from get-identity endpoint to retrieve device_id
+//     const identityResponse = await fetchIdentity(request);
+//     if (!identityResponse.ok) {
+//       return identityResponse;
+//     }
+
+//     const identityData = await identityResponse.json();
+//     device_id = identityData?.identity?.device_id; // Get device_id from identity data
+
+//     if (!device_id) {
+//       return new Response(
+//         JSON.stringify({ error: "Device ID not found in identity data" }),
+//         { status: 400 }
+//       );
+//     }
+//   }
+
+//   try {
+//     // Proceed with the fetched or fallback device_id
+//     const identityResponse = await fetchIdentity(request);
+//     if (!identityResponse.ok) {
+//       return identityResponse;
+//     }
+
+
+//     const identityData = await identityResponse.json();
+//     const deviceDetailsResponse = await fetchDeviceDetails(
+//       identityData.gateway_account_id,
+//       device_id
+//     );
+//         console.log("main gateway_account_id, ", identityData.gateway_account_id);
+
+//     let deviceDetailsData = {};
+//     if (deviceDetailsResponse.ok) {
+//       deviceDetailsData = await deviceDetailsResponse.json();
+//     } else if (deviceDetailsResponse.status === 404) {
+//       console.warn(
+//         `Device with ID ${device_id} not found (404). Device details unavailable.`
+//       );
+//     } else {
+//       return deviceDetailsResponse;
+//     }
+
+//     const devicePostureResponse = await fetchDevicePosture(
+//       identityData.gateway_account_id,
+//       device_id
+//     );
+
+//     let devicePostureData = {};
+//     if (devicePostureResponse.ok) {
+//       devicePostureData = await devicePostureResponse.json();
+//     } else {
+//       console.warn(
+//         `Device posture could not be retrieved for device ID ${device_id}.`
+//       );
+//     }
+
+//     const combinedData = {
+//       identity: identityData,
+//       device: deviceDetailsData,
+//       posture: devicePostureData,
+//     };
+
+//     return new Response(JSON.stringify(combinedData), {
+//       headers: { "Content-Type": "application/json" },
+//     });
+//   } catch (error) {
+//     console.error("Error in handleUserDetails:", error);
+//     return new Response(
+//       JSON.stringify({ error: `Internal Server Error: ${error.message}` }),
+//       {
+//         status: 500,
+//         headers: { "Content-Type": "application/json" },
+//       }
+//     );
+//   }
+// }
+
 // handle /api/userdetails + include user uuid for graphql
 async function handleUserDetails(request) {
-  // Step 1: Attempt to get device_id directly from the token
   const accessCookie = request.headers.get("cf-access-jwt-assertion");
+  console.log("Device cookie", accessCookie);
+  
   if (!accessCookie) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
+      headers: { "Content-Type": "application/json" },
     });
   }
 
-  // Try to extract device_id from the token
   let device_id = getDeviceIdFromToken(accessCookie);
+  let deviceIdError = null;
 
   if (!device_id) {
-    console.warn(
-      "Device ID not found in token, attempting to fetch from get-identity"
-    );
+    console.warn("Device ID not found in token, attempting to fetch from get-identity");
 
-    // Step 2: Fallback - fetch identity data from get-identity endpoint to retrieve device_id
     const identityResponse = await fetchIdentity(request);
     if (!identityResponse.ok) {
-      return identityResponse;
+      console.error("Failed to fetch identity data:", identityResponse.status);
+      return new Response(JSON.stringify({ error: "Failed to retrieve identity data" }), {
+        status: identityResponse.status,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     const identityData = await identityResponse.json();
-    device_id = identityData?.identity?.device_id; // Get device_id from identity data
+    device_id = identityData?.identity?.device_id || null;
 
     if (!device_id) {
-      return new Response(
-        JSON.stringify({ error: "Device ID not found in identity data" }),
-        { status: 400 }
-      );
+      console.warn("Device ID not found in identity data.");
+      deviceIdError = "Device ID not found in identity data";
     }
   }
 
   try {
-    // Proceed with the fetched or fallback device_id
     const identityResponse = await fetchIdentity(request);
     if (!identityResponse.ok) {
-      return identityResponse;
+      return new Response(JSON.stringify({ error: "Failed to retrieve identity data" }), {
+        status: identityResponse.status,
+        headers: { "Content-Type": "application/json" },
+      });
     }
-
-
     const identityData = await identityResponse.json();
-    const deviceDetailsResponse = await fetchDeviceDetails(
-      identityData.gateway_account_id,
-      device_id
-    );
-        console.log("main gateway_account_id, ", identityData.gateway_account_id);
 
     let deviceDetailsData = {};
-    if (deviceDetailsResponse.ok) {
-      deviceDetailsData = await deviceDetailsResponse.json();
-    } else if (deviceDetailsResponse.status === 404) {
-      console.warn(
-        `Device with ID ${device_id} not found (404). Device details unavailable.`
-      );
-    } else {
-      return deviceDetailsResponse;
-    }
-
-    const devicePostureResponse = await fetchDevicePosture(
-      identityData.gateway_account_id,
-      device_id
-    );
-
     let devicePostureData = {};
-    if (devicePostureResponse.ok) {
-      devicePostureData = await devicePostureResponse.json();
-    } else {
-      console.warn(
-        `Device posture could not be retrieved for device ID ${device_id}.`
-      );
+
+    if (device_id) {
+      const deviceDetailsResponse = await fetchDeviceDetails(identityData.gateway_account_id, device_id);
+      if (deviceDetailsResponse.ok) {
+        deviceDetailsData = await deviceDetailsResponse.json();
+      } else if (deviceDetailsResponse.status === 404) {
+        console.warn(`Device with ID ${device_id} not found (404). Device details unavailable.`);
+      } else {
+        console.error("Error fetching device details:", deviceDetailsResponse.status);
+      }
+
+      const devicePostureResponse = await fetchDevicePosture(identityData.gateway_account_id, device_id);
+      if (devicePostureResponse.ok) {
+        devicePostureData = await devicePostureResponse.json();
+      } else {
+        console.warn(`Device posture could not be retrieved for device ID ${device_id}.`);
+      }
     }
 
     const combinedData = {
       identity: identityData,
       device: deviceDetailsData,
       posture: devicePostureData,
+      ...(deviceIdError ? { warning: deviceIdError } : {}), // Append warning if device_id is missing
     };
 
     return new Response(JSON.stringify(combinedData), {
