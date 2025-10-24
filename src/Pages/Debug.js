@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { ClipboardIcon, CheckIcon } from '@heroicons/react/24/outline';
+import 'boxicons/css/boxicons.min.css';
 
 const Debug = () => {
   const [debugInfo, setDebugInfo] = useState(null);
@@ -75,21 +75,26 @@ const Debug = () => {
                 <pre className="bg-gray-light p-4 rounded">
                   {JSON.stringify(debugInfo, null, 2)}
                 </pre>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  }}
-                  className="absolute top-2 right-2 p-2 rounded-md hover:bg-gray-300 transition-colors"
-                  title="Copy to clipboard"
-                >
-                  {copied ? (
-                    <CheckIcon className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <ClipboardIcon className="h-5 w-5 text-gray-500" />
+                <div className="absolute top-4 right-4">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="text-gray-500 hover:text-black p-2 rounded-full transition duration-150 ease-in-out"
+                    aria-label="Copy JSON"
+                  >
+                    <i className="bx bx-copy text-xl"></i>
+                  </button>
+
+                  {/* Tooltip */}
+                  {copied && (
+                    <div className="absolute top-full right-0 mt-1 px-2 py-1 text-xs bg-white text-black rounded shadow z-10">
+                      Copied!
+                    </div>
                   )}
-                </button>
+                </div>
               </div>
             ))}
         </div>
