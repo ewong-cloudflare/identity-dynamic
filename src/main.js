@@ -18,6 +18,8 @@ addEventListener("fetch", (event) => {
     event.respondWith(handleUploadRequest(event.request, event.env));
   } else if (url.pathname === "/assets/logo") {
     event.respondWith(handleAssetRetrieval(event.request, event.env, "logo"));
+  } else if (url.pathname === "/manifest.json") {
+    event.respondWith(handleManifestRequest(event.request));
   } else if (url.pathname === "/gateway") {
     event.respondWith(handleGatewayRedirectRequest(event));
   } else if (url.pathname === "/api/gateway") {
@@ -848,4 +850,31 @@ async function handleHistoryRequest(request) {
       }
     );
   }
+}
+
+async function handleManifestRequest(request) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const manifest = {
+    name: "Access Helper",
+    short_name: "AccessHelper",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#ffffff",
+    icons: [
+      {
+        sizes: "512x512",
+        type: "image/png"
+      }
+    ]
+  };
+
+  return new Response(JSON.stringify(manifest), {
+    headers: {
+      "Content-Type": "application/json",
+      ...corsHeaders,
+    }
+  });
 }
