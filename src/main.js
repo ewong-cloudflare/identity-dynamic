@@ -18,6 +18,10 @@ addEventListener("fetch", (event) => {
     event.respondWith(handleUploadRequest(event.request, event.env));
   } else if (url.pathname === "/assets/logo") {
     event.respondWith(handleAssetRetrieval(event.request, event.env, "logo"));
+  } else if (url.pathname === "/gateway") {
+    event.respondWith(handleGatewayRedirectRequest(event));
+  } else if (url.pathname === "/api/gateway") {
+    event.respondWith(handleGatewayRuleMetadataRequest(event.request));
   } else {
     event.respondWith(handleEvent(event));
   }
@@ -207,6 +211,65 @@ async function handleAssetRetrieval(request, env, key) {
     return new Response("Internal Server Error", { status: 500 });
   }
 }
+
+// https://developers.cloudflare.com/cloudflare-one/policies/gateway/http-policies/#redirect
+async function handleGatewayRedirectRequest(event) {
+  try {
+    return await getAssetFromKV(event, {
+      mapRequestToAsset: (req) =>
+        new Request(`${new URL(req.url).origin}/index.html`, req),
+    });
+  } catch (error) {
+    console.error("Error serving React app for /gateway:", error);
+    return new Response("Internal Server Error", { status: 500 });
+  }
+}
+
+// handle enhanced gateway policy information - description in /gateway messaging
+async function handleGatewayRuleMetadataRequest(request) {
+  const url = new URL(request.url);
+  const ruleId = url.searchParams.get("rule_id");
+
+  if (!ruleId) {
+    return new Response(
+      JSON.stringify({ error: "Missing rule_id query parameter" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  const ruleUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/gateway/rules/${ruleId}`;
+
+  try {
+    const response = await fetch(ruleUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Error fetching rule metadata:", data);
+      return new Response(JSON.stringify(data), {
+        status: response.status,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify(data), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Unexpected error in /api/gateway:", error);
+    return new Response(
+      JSON.stringify({ error: "Internal Server Error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
+}
+
 
 // handle the /api/debug endpoint
 async function handleDebugPage(request) {
