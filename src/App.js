@@ -9,6 +9,7 @@ import PageTitle from "./components/pagetitle";
 
 const App = () => {
   const [debugEnabled, setDebugEnabled] = useState(false);
+  const [setupEnabled, setSetupEnabled] = useState(false);
   const [setSessionExpired] = useState(false);
   const [theme, setTheme] = useState({
     primaryColor: "#3498db",
@@ -29,6 +30,7 @@ const App = () => {
 
         // Update debugEnabled based on the DEBUG value from the API
         setDebugEnabled(data.DEBUG === "true");
+        setSetupEnabled(data.SETUP === "true");
       } catch (error) {
         console.error("Error fetching environment variables:", error);
       }
@@ -50,6 +52,7 @@ const App = () => {
     <Router>
       <NavBar
         debugEnabled={debugEnabled}
+        setupEnabled={setupEnabled}
         primaryColor={theme.primaryColor}
         secondaryColor={theme.secondaryColor}
       />

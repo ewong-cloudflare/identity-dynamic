@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
-const NavBar = ({ debugEnabled, primaryColor }) => {
+const NavBar = ({ debugEnabled, setupEnabled, primaryColor }) => {
   const [logoUrl, setLogoUrl] = useState(null);
 
   useEffect(() => {
@@ -57,6 +57,13 @@ const NavBar = ({ debugEnabled, primaryColor }) => {
             Information
           </NavLink>
         </li>
+        {setupEnabled && (
+          <li className="list-none">
+            <NavLink to="/setup" className={getNavLinkClass}>
+              Setup
+            </NavLink>
+          </li>
+        )}
         {debugEnabled && (
           <li className="list-none">
             <NavLink to="/debug" className={getNavLinkClass}>

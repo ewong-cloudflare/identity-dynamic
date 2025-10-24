@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from "react";
-import Setup from "../components/setup";
 
 const Debug = () => {
   const [debugInfo, setDebugInfo] = useState(null);

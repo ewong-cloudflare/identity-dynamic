@@ -73,6 +73,7 @@ async function handleEnvRequest(request, env) {
         ORGANIZATION_NAME: ORGANIZATION_NAME,
         TARGET_GROUP: TARGET_GROUP,
         DEBUG: DEBUG,
+        SETUP: SETUP,
         theme: theme
           ? JSON.parse(theme)
           : {
