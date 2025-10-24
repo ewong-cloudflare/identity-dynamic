@@ -122,10 +122,6 @@ const Debug = () => {
               </p>
             ))}
         </div>
-
-        <div className="p-4 border border-gray-light rounded-lg bg-white mt-6">
-          <Setup />
-        </div>
       </div>
     </div>
   );

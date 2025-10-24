@@ -4,6 +4,7 @@ import AccessDenied from "./Pages/AccessDenied";
 import Information from "./Pages/Information";
 import Debug from "./Pages/Debug";
 import NavBar from "./components/navbar";
+import Setup from "./Pages/Setup";
 import useSessionCheck from "./hooks/useSessionCheck";
 import PageTitle from "./components/pagetitle";
 
@@ -77,6 +78,7 @@ const App = () => {
           }
         />
         <Route path="/information" element={<Information />} />
+        {setupEnabled && <Route path="/setup" element={<Setup />} />}
         {debugEnabled && <Route path="/debug" element={<Debug />} />}
       </Routes>
     </Router>
