@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { ClipboardIcon, ClipboardCheckIcon } from '@heroicons/react/24/outline';
 
 const Debug = () => {
   const [debugInfo, setDebugInfo] = useState(null);
@@ -6,6 +7,7 @@ const Debug = () => {
   const [error, setError] = useState(null);
   const [isIdentityExpanded, setIsIdentityExpanded] = useState(false);
   const [isDeviceExpanded, setIsDeviceExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const forcePageReload = () => {
     window.location.reload();
@@ -69,9 +71,26 @@ const Debug = () => {
             (error ? (
               <p className="text-red">{error}</p>
             ) : (
-              <pre className="bg-gray-light p-4 rounded">
-                {JSON.stringify(debugInfo, null, 2)}
-              </pre>
+              <div className="relative">
+                <pre className="bg-gray-light p-4 rounded">
+                  {JSON.stringify(debugInfo, null, 2)}
+                </pre>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="absolute top-2 right-2 p-2 rounded-md hover:bg-gray-300 transition-colors"
+                  title="Copy to clipboard"
+                >
+                  {copied ? (
+                    <ClipboardCheckIcon className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <ClipboardIcon className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+              </div>
             ))}
         </div>
 
