@@ -26,6 +26,7 @@ Features of this page include:
 
    * Access: Audit Logs Read
    * Access: Device Posture Read
+   * Zero Trust Read
 2. Create a new Cloudflare Access application (Self Hosted) https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/
 
    * Apply the restrictions to this new application that would typically apply to your organization (ie. Allow only specific email domains/authorized users) - This will restrict external, potentially unauthorized requests to the worker.
