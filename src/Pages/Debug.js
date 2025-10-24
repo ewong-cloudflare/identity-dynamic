@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { ClipboardIcon, ClipboardCheckIcon } from '@heroicons/react/24/outline';
+import { ClipboardIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 const Debug = () => {
   const [debugInfo, setDebugInfo] = useState(null);
@@ -85,7 +85,7 @@ const Debug = () => {
                   title="Copy to clipboard"
                 >
                   {copied ? (
-                    <ClipboardCheckIcon className="h-5 w-5 text-green-500" />
+                    <CheckIcon className="h-5 w-5 text-green-500" />
                   ) : (
                     <ClipboardIcon className="h-5 w-5 text-gray-500" />
                   )}
