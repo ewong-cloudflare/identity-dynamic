@@ -83,7 +83,7 @@ const App = () => {
         <Route path="/information" element={<Information />} />
         {setupEnabled && <Route path="/setup" element={<Setup />} />}
         {debugEnabled && <Route path="/debug" element={<Debug />} />}
-        <Route path="/gateway" element={<Gateway />} />
+        <Route path="/gateway" element={<GatewayRedirect />} />
       </Routes>
     </Router>
   );
