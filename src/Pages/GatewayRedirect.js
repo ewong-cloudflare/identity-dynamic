@@ -10,8 +10,8 @@ const GatewayRedirect = () => {
   const [loading, setLoading] = useState(true);
   const [ruleError, setRuleError] = useState(null); // if theres no cf_rule_id present
   const [debugEnabled, setDebugEnabled] = useState(false); // debug only detailed rule information from the api
-  const [primaryColor, setPrimaryColor] = useState("#ff7900"); // theme
-  const [secondaryColor, setSecondaryColor] = useState("#ff7900"); // theme
+  const [primaryColor, setPrimaryColor] = useState("#ffadfc"); // theme
+  const [secondaryColor, setSecondaryColor] = useState("#a30adb"); // theme
   const [copied, setCopied] = useState(false); // copy/paste tooltip for the context info
   const isMobile = false;
 

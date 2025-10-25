@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 const Setup = () => {
-  const [primaryColor, setPrimaryColor] = useState("#3498db");
-  const [secondaryColor, setSecondaryColor] = useState("#2ecc71");
+  const [primaryColor, setPrimaryColor] = useState("#ffadfc");
+  const [secondaryColor, setSecondaryColor] = useState("#a30adb");
   const [statusMessage, setStatusMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [tooltip, setTooltip] = useState({});
@@ -19,8 +19,8 @@ const Setup = () => {
         const data = await response.json();
         const theme = data.theme || {};
 
-        setPrimaryColor(theme.primaryColor || "#3498db");
-        setSecondaryColor(theme.secondaryColor || "#2ecc71");
+        setPrimaryColor(theme.primaryColor || "#ffadfc");
+        setSecondaryColor(theme.secondaryColor || "#a30adb");
         setLogo(theme.logoUrl || null);
 
         if (theme.logoUrl) setLogoPreview(`/assets/logo`);
