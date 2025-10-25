@@ -7,6 +7,7 @@ import NavBar from "./components/navbar";
 import Setup from "./Pages/Setup";
 import useSessionCheck from "./hooks/useSessionCheck";
 import PageTitle from "./components/pagetitle";
+import GatewayRedirect from "./Pages/GatewayRedirect";
 
 const App = () => {
   const [debugEnabled, setDebugEnabled] = useState(false);
@@ -80,6 +81,7 @@ const App = () => {
         <Route path="/information" element={<Information />} />
         {setupEnabled && <Route path="/setup" element={<Setup />} />}
         {debugEnabled && <Route path="/debug" element={<Debug />} />}
+        <Route path="/gateway" element={<GatewayRedirect isMobile={isMobile} />} />
       </Routes>
     </Router>
   );
