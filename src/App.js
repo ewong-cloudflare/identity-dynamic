@@ -18,6 +18,8 @@ const App = () => {
     secondaryColor: "#2ecc71",
   });
 
+
+
   // Fetch theme and debug status from the API
   useEffect(() => {
     const fetchEnv = async () => {
@@ -81,7 +83,7 @@ const App = () => {
         <Route path="/information" element={<Information />} />
         {setupEnabled && <Route path="/setup" element={<Setup />} />}
         {debugEnabled && <Route path="/debug" element={<Debug />} />}
-        <Route path="/gateway" element={<GatewayRedirect isMobile={isMobile} />} />
+        <Route path="/gateway" element={<Gateway />} />
       </Routes>
     </Router>
   );
