@@ -41,7 +41,7 @@ ORGANIZATION_NAME = "realacmecorp"
 
 
 DEBUG = "true"
-SETUP = "true" # Enable/disable setup page access
+SETUP = "false" # Enable/disable setup page access
 TARGET_GROUP = "NA" # Define the "special group" that you want to use for notification
 
 [site]
