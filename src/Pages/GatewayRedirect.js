@@ -278,8 +278,8 @@ const GatewayRedirect = () => {
             <button
               onClick={() => {
                 navigator.clipboard.writeText(JSON.stringify(contextData, null, 2));
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
+                setContextCopied(true);
+                setTimeout(() => setContextCopied(false), 2000);
               }}
               className="text-gray-500 hover:text-black p-2 rounded-full transition duration-150 ease-in-out"
               aria-label="Copy JSON"
