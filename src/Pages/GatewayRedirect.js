@@ -311,6 +311,29 @@ const GatewayRedirect = () => {
         {debugEnabled && ruleData && (
           <div className="bg-white rounded shadow p-4 mb-6">
             <h2 className="text-2xl font-bold mb-4">DEBUG: Gateway Rule Details</h2>
+
+            {/* Copy Icon Button */}
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(JSON.stringify(contextData, null, 2));
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="text-gray-500 hover:text-black p-2 rounded-full transition duration-150 ease-in-out"
+                aria-label="Copy JSON"
+              >
+                <i className="bx bx-copy text-xl"></i>
+              </button>
+
+              {/* Tooltip */}
+              {copied && (
+                <div className="absolute top-full right-0 mt-1 px-2 py-1 text-xs bg-white text-black rounded shadow z-10">
+                  Copied!
+                </div>
+              )}
+            </div>
+
             <pre className="bg-gray-100 p-4 rounded overflow-auto">
               {JSON.stringify(ruleData, null, 2)}
             </pre>
