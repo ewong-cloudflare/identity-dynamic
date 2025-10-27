@@ -12,8 +12,7 @@ const GatewayRedirect = () => {
   const [debugEnabled, setDebugEnabled] = useState(false); // debug only detailed rule information from the api
   const [primaryColor, setPrimaryColor] = useState("#ffadfc"); // theme
   const [secondaryColor, setSecondaryColor] = useState("#a30adb"); // theme
-  const [contextCopied, setContextCopied] = useState(false); // copy/paste tooltip for the context info
-  const [debugCopied, setDebugCopied] = useState(false); // copy/paste tooltip for the debug info
+  const [copied, setCopied] = useState(false); // copy/paste tooltip for the context info
   const isMobile = false;
 
   const [bugsPolicyIds, setBugsPolicyIds] = useState([
@@ -279,8 +278,8 @@ const GatewayRedirect = () => {
             <button
               onClick={() => {
                 navigator.clipboard.writeText(JSON.stringify(contextData, null, 2));
-                setContextCopied(true);
-                setTimeout(() => setContextCopied(false), 2000);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
               }}
               className="text-gray-500 hover:text-black p-2 rounded-full transition duration-150 ease-in-out"
               aria-label="Copy JSON"
@@ -289,7 +288,7 @@ const GatewayRedirect = () => {
             </button>
 
             {/* Tooltip */}
-            {copied && (
+            {contextCopied && (
               <div className="absolute top-full right-0 mt-1 px-2 py-1 text-xs bg-white text-black rounded shadow z-10">
                 Copied!
               </div>
@@ -318,8 +317,8 @@ const GatewayRedirect = () => {
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(JSON.stringify(contextData, null, 2));
-                  setDebugCopied(true);
-                  setTimeout(() => setDebugCopied(false), 2000);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
                 }}
                 className="text-gray-500 hover:text-black p-2 rounded-full transition duration-150 ease-in-out"
                 aria-label="Copy JSON"
@@ -328,7 +327,7 @@ const GatewayRedirect = () => {
               </button>
 
               {/* Tooltip */}
-              {debugCopied && (
+              {copied && (
                 <div className="absolute top-full right-0 mt-1 px-2 py-1 text-xs bg-white text-black rounded shadow z-10">
                   Copied!
                 </div>
