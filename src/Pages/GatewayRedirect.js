@@ -309,7 +309,7 @@ const GatewayRedirect = () => {
         )}
 
         {debugEnabled && ruleData && (
-          <div className="bg-white rounded shadow p-4 mb-6">
+          <div className="bg-white rounded shadow p-4 mb-6 relative">
             <h2 className="text-2xl font-bold mb-4">DEBUG: Gateway Rule Details</h2>
 
             {/* Copy Icon Button */}
