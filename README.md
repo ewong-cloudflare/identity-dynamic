@@ -52,8 +52,8 @@ Features of this page include:
 
 **Customizing Theme elements:**
 
-1. Set DEBUG = "true" in the wrangler.toml and if needed, redeploy the worker - this will allow enable the debug page.
-2. Visit your-domain/debug
+1. Set SETUP = "true" in the wrangler.toml and if needed, redeploy the worker - this will allow enable the debug page.
+2. Visit your-domain/setup
 3. Upload logo and select color primary and secondary colors
 
    * ![](assets/20241119_184227_image.png)
