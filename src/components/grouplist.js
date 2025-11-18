@@ -10,10 +10,15 @@ const GroupList = () => {
   const defaultVisibleGroups = 5; // this can be changed, for now its 5
 
   const filteredGroups = groups
-    .filter(group =>
-      group.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => a.localeCompare(b)); // Sort alphabetically
+    .filter(group => {
+      const groupName = typeof group === 'string' ? group : group.name;
+      return groupName.toLowerCase().includes(searchTerm.toLowerCase());
+    })
+    .sort((a, b) => {
+      const aName = typeof a === 'string' ? a : a.name;
+      const bName = typeof b === 'string' ? b : b.name;
+      return aName.localeCompare(bName);
+    });
 
   // expand the group list
   const toggleExpand = () => {
@@ -67,7 +72,7 @@ const GroupList = () => {
         <>
           <ul className={`info-list2 ${!expanded ? 'max-h-24 overflow-hidden' : ''}`}>
             {filteredGroups.slice(0, expanded ? filteredGroups.length : defaultVisibleGroups).map((group, index) => (
-              <li key={index} className="mb-2">{group}</li>
+              <li key={index} className="mb-2">{typeof group === 'string' ? group : group.name}</li>
             ))}
           </ul>
           
