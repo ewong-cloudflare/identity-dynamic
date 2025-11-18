@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 const Setup = () => {
   const [primaryColor, setPrimaryColor] = useState("#ffadfc");
   const [secondaryColor, setSecondaryColor] = useState("#a30adb");
+  const [tertiaryColor, setTertiaryColor] = useState("#ffffff");
   const [statusMessage, setStatusMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [tooltip, setTooltip] = useState({});
@@ -21,11 +22,12 @@ const Setup = () => {
 
         setPrimaryColor(theme.primaryColor || "#ffadfc");
         setSecondaryColor(theme.secondaryColor || "#a30adb");
+        setTertiaryColor(theme.tertiaryColor || "#ffffff");
         setLogo(theme.logoUrl || null);
 
         if (theme.logoUrl) setLogoPreview(`/assets/logo`);
 
-        applyTheme(theme.primaryColor, theme.secondaryColor);
+        applyTheme(theme.primaryColor, theme.secondaryColor, theme.tertiaryColor);
       } catch (error) {
         console.error("Error fetching theme:", error);
       }
@@ -35,7 +37,7 @@ const Setup = () => {
     // eslint-disable-next-line
   }, []);
 
-  const applyTheme = (primary, secondary) => {
+  const applyTheme = (primary, secondary, tertiary) => {
     document.documentElement.style.setProperty(
       "--primary-color",
       primary || primaryColor
@@ -44,10 +46,14 @@ const Setup = () => {
       "--secondary-color",
       secondary || secondaryColor
     );
+    document.documentElement.style.setProperty(
+      "--tertiary-color",
+      tertiary || tertiaryColor
+    );
   };
 
   const handleSaveTheme = async () => {
-    const theme = { primaryColor, secondaryColor };
+    const theme = { primaryColor, secondaryColor, tertiaryColor };
     setIsSaving(true);
     setStatusMessage("");
 
@@ -206,6 +212,13 @@ const Setup = () => {
           setSecondaryColor,
           "Used for link highlighting as well as buttons.",
           "secondaryColorTooltip"
+        )}
+        {renderColorPicker(
+          "Tertiary",
+          tertiaryColor,
+          setTertiaryColor,
+          "Used for the page title and navigation tab text.",
+          "tertiaryColorTooltip"
         )}
       </div>
 

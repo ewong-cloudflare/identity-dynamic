@@ -16,6 +16,7 @@ const App = () => {
   const [theme, setTheme] = useState({
     primaryColor: "#3498db",
     secondaryColor: "#2ecc71",
+    tertiaryColor: "#ffffff",
   });
 
 
@@ -30,6 +31,7 @@ const App = () => {
         setTheme({
           primaryColor: themeData.primaryColor || "#3498db",
           secondaryColor: themeData.secondaryColor || "#2ecc71",
+          tertiaryColor: themeData.tertiaryColor || "#ffffff",
         });
 
         // Update debugEnabled based on the DEBUG value from the API
@@ -59,6 +61,7 @@ const App = () => {
         setupEnabled={setupEnabled}
         primaryColor={theme.primaryColor}
         secondaryColor={theme.secondaryColor}
+        tertiaryColor={theme.tertiaryColor}
       />
       <PageTitle />
       <Routes>
