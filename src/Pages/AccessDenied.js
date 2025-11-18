@@ -14,8 +14,15 @@ const AccessDenied = ({ primaryColor, secondaryColor }) => {
   const [loadingDeviceInfo, setLoadingDeviceInfo] = useState(true);
   const [loadingWarpInfo, setLoadingWarpInfo] = useState(true);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [ruleMetadata, setRuleMetadata] = useState(null);
+  const [loadingRuleMetadata, setLoadingRuleMetadata] = useState(false);
 
   const location = useLocation();
+
+  // Extract Cloudflare Gateway parameters from URL
+  const searchParams = new URLSearchParams(location.search);
+  const cfRuleId = searchParams.get('cf_rule_id');
+  const cfApplicationNames = searchParams.get('cf_application_names');
 
   // Handlers to update loading state
   const handleDeviceInfoLoaded = () => {
@@ -30,11 +37,36 @@ const AccessDenied = ({ primaryColor, secondaryColor }) => {
     setLoadingHistory(false);
   };
 
+  // Fetch rule metadata when rule ID is present
+  useEffect(() => {
+    const fetchRuleMetadata = async () => {
+      if (!cfRuleId) return;
+
+      setLoadingRuleMetadata(true);
+      try {
+        const response = await fetch(`/api/gateway?rule_id=${cfRuleId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setRuleMetadata(data.result);
+        } else {
+          console.error("Failed to fetch rule metadata:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching rule metadata:", error);
+      } finally {
+        setLoadingRuleMetadata(false);
+      }
+    };
+
+    fetchRuleMetadata();
+  }, [cfRuleId]);
+
   // Reset state when the route changes, this is needed to force refresh to keep the information up to date.
   useEffect(() => {
     setLoadingDeviceInfo(true);
     setLoadingWarpInfo(true);
     setLoadingHistory(true);
+    setRuleMetadata(null);
   }, [location.pathname]); // Reset loading states whenever the pathname changes
 
   const loadingPage = loadingDeviceInfo || loadingWarpInfo || loadingHistory;
@@ -69,6 +101,41 @@ const AccessDenied = ({ primaryColor, secondaryColor }) => {
         <div className="flex justify-center">
           <OriginalUrl />
         </div>
+
+        {/* Cloudflare Gateway Block Reason */}
+        {cfRuleId && (
+          <div className="container mx-auto p-4 mt-6">
+            <Alert type="error">
+              <div className="space-y-2">
+                <p className="font-semibold">Blocked by Cloudflare Gateway Policy</p>
+                {loadingRuleMetadata ? (
+                  <p className="text-sm italic">Loading rule details...</p>
+                ) : ruleMetadata ? (
+                  <>
+                    {ruleMetadata.name && (
+                      <p>
+                        <strong>Policy:</strong> {ruleMetadata.name}
+                      </p>
+                    )}
+                    {ruleMetadata.description && (
+                      <p>
+                        <strong>Description:</strong> {ruleMetadata.description}
+                      </p>
+                    )}
+                  </>
+                ) : null}
+                {cfApplicationNames && (
+                  <p>
+                    <strong>Application:</strong> {cfApplicationNames}
+                  </p>
+                )}
+                <p className="text-sm text-gray-600">
+                  <strong>Rule ID:</strong> {cfRuleId}
+                </p>
+              </div>
+            </Alert>
+          </div>
+        )}
 
         <hr className="my-6 border-gray-light" />
         <h3 className="text-2xl font-bold mb-6">Overview</h3>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
-const NavBar = ({ debugEnabled, setupEnabled, primaryColor }) => {
+const NavBar = ({ debugEnabled, setupEnabled, primaryColor, tertiaryColor }) => {
   const [logoUrl, setLogoUrl] = useState(null);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const NavBar = ({ debugEnabled, setupEnabled, primaryColor }) => {
   const getNavLinkClass = ({ isActive }) =>
     isActive
       ? 'bg-steel text-black px-4 h-full flex items-center rounded-t-md'
-      : 'text-white no-underline px-4 h-full flex items-center hover:bg-white hover:bg-opacity-20 rounded-t-md';
+      : `no-underline px-4 h-full flex items-center hover:bg-white hover:bg-opacity-20 rounded-t-md`;
 
   return (
     <nav
@@ -44,29 +44,29 @@ const NavBar = ({ debugEnabled, setupEnabled, primaryColor }) => {
             <span>Loading Logo...</span>
           )}
         </NavLink>
-        <span className="ml-14 text-2xl text-white font-medium">Identity and Access Help Page</span>
+        <span className="ml-14 text-2xl font-medium" style={{ color: tertiaryColor }}>Identity and Access Help Page</span>
       </div>
       <ul className="flex space-x-4 h-full">
         <li className="list-none">
-          <NavLink to="/access-denied" className={getNavLinkClass}>
+          <NavLink to="/access-denied" className={getNavLinkClass} style={{ color: tertiaryColor }}>
             Access Denied
           </NavLink>
         </li>
         <li className="list-none">
-          <NavLink to="/information" className={getNavLinkClass}>
+          <NavLink to="/information" className={getNavLinkClass} style={{ color: tertiaryColor }}>
             Information
           </NavLink>
         </li>
         {setupEnabled && (
           <li className="list-none">
-            <NavLink to="/setup" className={getNavLinkClass}>
+            <NavLink to="/setup" className={getNavLinkClass} style={{ color: tertiaryColor }}>
               Setup
             </NavLink>
           </li>
         )}
         {debugEnabled && (
           <li className="list-none">
-            <NavLink to="/debug" className={getNavLinkClass}>
+            <NavLink to="/debug" className={getNavLinkClass} style={{ color: tertiaryColor }}>
               Debug
             </NavLink>
           </li>

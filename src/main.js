@@ -49,12 +49,21 @@ async function handleEnvRequest(request, env) {
 
   try {
     if (request.method === "POST") {
+          // Check if setup is enabled
+        const isSetupEnabled = String(SETUP).toLowerCase() === "true";
+        if (isSetupEnabled !== true) {
+          return new Response("Forbidden", {
+            status: 403,
+            headers: corsHeaders,
+          });
+         }
       const body = await request.json();
 
       // Update to only store primary and secondary colors
       const updatedTheme = {
         primaryColor: body.primaryColor || "#3498db", // Default for primary color
         secondaryColor: body.secondaryColor || "#2ecc71", // Default for secondary color
+        tertiaryColor: body.tertiaryColor || "#ffffff", // Default for tertiary color
       };
       // eslint-disable-next-line
       await IDENTITY_DYNAMIC_THEME_STORE.put(
@@ -85,6 +94,7 @@ async function handleEnvRequest(request, env) {
           : {
               primaryColor: "#3498db", // Default for primary color
               secondaryColor: "#2ecc71", // Default for secondary color
+              tertiaryColor: "#ffffff", // Default for tertiary color
             },
       };
 
@@ -111,6 +121,14 @@ async function handleEnvRequest(request, env) {
 async function handleUploadRequest(request, env) {
   if (request.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+            // Check if setup is enabled
+  const isSetupEnabled = String(SETUP).toLowerCase() === "true";
+  if (isSetupEnabled !== true) {
+    return new Response("Forbidden", {
+      status: 403,
+      headers: corsHeaders,
+    });
   }
 
   if (request.method !== "POST") {
@@ -239,9 +257,22 @@ async function handleGatewayRuleMetadataRequest(request) {
     );
   }
 
-  const ruleUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/gateway/rules/${ruleId}`;
+  const kvKey = `gateway_rule_${ruleId}`;
 
   try {
+    // Check KV cache first
+    const cachedRule = await IDENTITY_DYNAMIC_THEME_STORE.get(kvKey, "json");
+    if (cachedRule) {
+      console.log(`Cache hit for rule ${ruleId}`);
+      return new Response(JSON.stringify(cachedRule), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Cache miss - fetch from API
+    console.log(`Cache miss for rule ${ruleId}, fetching from API`);
+    const ruleUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/gateway/rules/${ruleId}`;
+
     const response = await fetch(ruleUrl, {
       method: "GET",
       headers: {
@@ -259,6 +290,11 @@ async function handleGatewayRuleMetadataRequest(request) {
         headers: { "Content-Type": "application/json" },
       });
     }
+
+    // Cache the result for 24 hours (86400 seconds)
+    await IDENTITY_DYNAMIC_THEME_STORE.put(kvKey, JSON.stringify(data), {
+      expirationTtl: 86400,
+    });
 
     return new Response(JSON.stringify(data), {
       headers: { "Content-Type": "application/json" },
