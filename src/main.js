@@ -49,6 +49,14 @@ async function handleEnvRequest(request, env) {
 
   try {
     if (request.method === "POST") {
+          // Check if setup is enabled
+        const isSetupEnabled = String(SETUP).toLowerCase() === "true";
+        if (isSetupEnabled !== true) {
+          return new Response("Forbidden", {
+            status: 403,
+            headers: corsHeaders,
+          });
+         }
       const body = await request.json();
 
       // Update to only store primary and secondary colors
@@ -113,6 +121,14 @@ async function handleEnvRequest(request, env) {
 async function handleUploadRequest(request, env) {
   if (request.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+            // Check if setup is enabled
+  const isSetupEnabled = String(SETUP).toLowerCase() === "true";
+  if (isSetupEnabled !== true) {
+    return new Response("Forbidden", {
+      status: 403,
+      headers: corsHeaders,
+    });
   }
 
   if (request.method !== "POST") {
